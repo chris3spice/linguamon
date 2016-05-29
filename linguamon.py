@@ -24,9 +24,36 @@ screen.fill(BLACK)
 import battleback
 
 
-def draw_btn(btn_w, btn_h, btn_x, btn_y, color):
+def txt_obj(txt, color):
+    txtSurf = btn_font.render(txt, True, color)
+    return txtSurf, txtSurf.get_rect()
+
+
+# Draw a button to the screen!
+def draw_btn(x, y, w, h, active_color, inactive_color, txt, txt_color, action=None):
     # Draw a button to the screen
-    pass
+    cur = pg.mouse.get_pos()
+    click = pg.mouse.get_pressed()
+    if x + w >= cur[0] >= x and y + h > cur[1] > y:
+        pg.draw.rect(screen, active_color, (x, y, w, h))
+        if click[0] == 1 and action != None:
+            if action == "quit":
+                pg.quit()
+                quit()
+
+            if action == "play":
+                battle()
+
+    else:
+        pg.draw.rect(screen, inactive_color, (x, y, w, h))
+
+    txt_to_btn(txt, txt_color, x, y, w, h)
+
+def txt_to_btn(txt, color, x, y, w, h):
+    txtSurf, txtRect = txt_obj(txt, color)
+    txtRect.center = ((x+(w/2)), y+(h/2))
+    screen.blit(txtSurf, txtRect)
+
 
 def get_ling(x):  # Randomly grabs linguamon
     rand_ling = []
@@ -63,33 +90,34 @@ def battle():
         # Get questions and the corresponding answer
         inde, the_quest = rand_word(questions)
         ans = answers[inde]
+
         # Fills the array with the right answer and 3 wrong ones
         disp_ans.append(ans)
         # Add random answers
         disp_ans.append(words[inde][2])
         disp_ans.append(words[inde][3])
         disp_ans.append(words[inde][4])
+
         # Shuffles the answers
         random.shuffle(disp_ans)
+
+        # Draw buttons on screen
+        z = 1
+        x = 0
+        for b in disp_ans:
+            if z == 1:
+                draw_btn(10, 995, 300, 75, OFFW, WHITE, b, BLACK, action="ans")
+            else:
+                x += 360
+                draw_btn(x, 995, 300, 75, OFFW, WHITE, b, BLACK, action="ans")
+            z += 1
+
+
         # Ask the user the question
         quest_txt = title_font.render(the_quest, True, BLACK)
         screen.blit(quest_txt, (400, 200))
-        pg.display.flip()
+        pg.display.update()
         # Display four answers with one of them being correct
-        print(disp_ans)
-        usr_in = input("Pick 1 throuh 4 ")
-        usr_ind = int(usr_in) - 1
-        usr_ans = disp_ans[usr_ind]
-
-        if usr_ans == ans:
-            questions.remove(the_quest)
-            answers.remove(ans)
-            print("Correct")
-        else:
-            print("Wrong")
-    print("You won!")
-    pg.quit()
-    quit()
 
 
 def game_menu():
@@ -99,30 +127,12 @@ def game_menu():
     intr = True
     while intr:
         cur = pg.mouse.get_pos()
-        click = pg.mouse.get_pressed()
 
         # Draw Play Button
-        if 100 + 200 >= cur[0] > 100 and 1000 + 50 >= cur[1] > 1000:
-            pg.draw.rect(screen, OFFW, (100, 1000, 200, 50))
-            if click[0] == 1:
-                battle()
-        else:
-            pg.draw.rect(screen, WHITE, (100, 1000, 200, 50))
-
-        ply_txt = btn_font.render("Play", True, BLACK)
-        screen.blit(ply_txt, (175, 1015))
+        draw_btn(100, 1000, 200, 50, OFFW, WHITE, "PLAY", BLACK, action="play")
 
         # Draw Quit Button
-        if 400 + 200 >= cur[0] > 400 and 1000 + 50 >= cur[1] > 1000:
-            pg.draw.rect(screen, OFFW, (400, 1000, 200, 50))
-            if click[0] == 1:
-                pg.quit()
-                quit()
-        else:
-            pg.draw.rect(screen, WHITE, (400, 1000, 200, 50))
-
-        q_txt = btn_font.render("Quit", True, BLACK)
-        screen.blit(q_txt, (475, 1015))
+        draw_btn(400, 1000, 200, 50, OFFW, WHITE, "QUIT", BLACK, action="quit")
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
