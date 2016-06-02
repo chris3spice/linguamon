@@ -3,7 +3,7 @@ The class for our Battle scene is found here.
 """
 
 import pygame as pg
-
+from ..components import enemy
 from .. import prepare, tools
 
 
@@ -14,6 +14,10 @@ class Battle(tools._State):
         self.bgm = prepare.MUSIC["Anitek_-_07_-_Contact"]
         self.font = pg.font.Font(prepare.FONTS["Fixedsys500c"], 50)
         self.timer = 0.0
+
+        self.linguamon = enemy.Linguamon.get_enemy(self, 3)
+        
+
 
     def startup(self, current_time, persistant):
         # Initialize state attributes
@@ -39,7 +43,6 @@ class Battle(tools._State):
 
 
     def update(self, surface, keys, current_time, time_delta):
-        """Update blink timer and draw everything."""
         self.current_time = current_time
         self.draw(surface)
 
